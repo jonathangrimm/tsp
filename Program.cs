@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 
 namespace TSP
 {
     public static class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
-            BoltzmannMachine boltzmann = new BoltzmannMachine();
+            var boltzmann = new BoltzmannMachine();
             boltzmann.FilePath = "Cities.txt";
             boltzmann.RunBoltzmannMachine();
+            var path = "";
 
-           
-
-            string path = "";
-
-            for (int i = 0; i < boltzmann.CitiesOrderedList.Count - 1; i++)
+            for (var i = 0; i < boltzmann.CitiesOrderedList.Count - 1; i++)
             {
                 path += boltzmann.CitiesOrderedList[i] + " -> ";
             }
@@ -28,7 +23,5 @@ namespace TSP
 
             Console.ReadLine();
         }
-
-      
     }
 }

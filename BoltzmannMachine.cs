@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Mime;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 
 namespace TSP
 {
@@ -21,7 +17,6 @@ namespace TSP
             LeastDistance = 0;
         }
 
-        public string currentIteration { get; set; }
         public double LeastDistance { get; private set; }
 
         public string FilePath { private get; set; }
@@ -80,10 +75,7 @@ namespace TSP
         /// <returns></returns>
         private List<int> GetNextArrangement(List<int> order)
         {
-            var newOrder = new List<int>();
-
-            for (var i = 0; i < order.Count; i++)
-                newOrder.Add(order[i]);
+            var newOrder = order.ToList();
 
             //we will only rearrange two cities by _random
             //starting point should be always zero - so zero should not be included
@@ -117,41 +109,22 @@ namespace TSP
             while (temp > absoluteTemp)
             {
                 _nextOrder = GetNextArrangement(CitiesOrderedList);
-
                 deltaDistance = GetTotalDistance(_nextOrder) - distance;
+
                 //if the new order has a smaller distance
                 //or larger distance but meets Boltzmann then accept the arrangement is valid
                 if ((deltaDistance < 0) || (distance > 0 && Math.Exp(-deltaDistance/temp) > _random.NextDouble()))
                 {
-                    //  for (var i = 0; i < _nextOrder.Count; i++)
-                    //   {
-                    // CitiesOrderedList[i] = _nextOrder[i];
-                    //   }
-               //     var processed = processedCities.Where(city => city.Intersect(_nextOrder).Any());
-                 
+                    CitiesOrderedList = _nextOrder;
+                    processedCities.Add(CitiesOrderedList);
+                    distance = deltaDistance + distance;
 
-               //     if (!processed.Any())
-                        //.Contains(_nextOrder))))
-                    
-                        CitiesOrderedList = _nextOrder;
-                        processedCities.Add(CitiesOrderedList);
-                        distance = deltaDistance + distance;
-
-                       
-                            UpdateConsole(CitiesOrderedList, iteration, distance);
-
-                       
-                    
-                        iteration++;
-
-             //       }
-
+                    UpdateConsole(CitiesOrderedList, iteration, distance);
+                    iteration++;
                 }
 
                 //turn down the thermostat
-                    temp *= coolingRate;
-//                    iteration++;
-                
+                temp *= coolingRate;
             }
 
             LeastDistance = distance;
@@ -159,23 +132,16 @@ namespace TSP
 
         private void UpdateConsole(List<int> citiesOrderedList, int iteration, double distance)
         {
-            string currentCityOrder = FormatCityList(CitiesOrderedList);
+            var currentCityOrder = FormatCityList(CitiesOrderedList);
+            Console.WriteLine("iteration #: {0} Order of Cities: {1} Distance: {2}", iteration, currentCityOrder,
+                distance);
+        }
 
-            Console.WriteLine("iteration #: " + iteration +
-                              " Order of Cities: " + currentCityOrder +
-                              " Distance: " + distance);
-
-
-      //   Thread.Sleep(100);
-        
-    }
-
-        private string FormatCityList(List<int> citiesOrderedList)
+        private static string FormatCityList(List<int> citiesOrderedList)
         {
-            string formattedCities = 
+            var formattedCities =
                 citiesOrderedList.Where(city => citiesOrderedList.Last() != city)
-                .Aggregate<int, string>(null, (current, city) => current + (city + " -> "));
-
+                    .Aggregate<int, string>(null, (current, city) => current + (city + " -> "));
             formattedCities += citiesOrderedList.Last();
 
             return formattedCities;
