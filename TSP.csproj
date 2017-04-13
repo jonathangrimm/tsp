@@ -73,6 +73,9 @@
     <Compile Include="BoltzmannMachine.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Results.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Cities - Copy.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

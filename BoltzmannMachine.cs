@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Mime;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -111,7 +112,7 @@ namespace TSP
             GetDistanceData();
 
             var distance = GetTotalDistance(CitiesOrderedList);
-            List<List<int>>processedCities = new List<List<int>>();  
+            var processedCities = new List<List<int>>();
 
             while (temp > absoluteTemp)
             {
@@ -126,21 +127,24 @@ namespace TSP
                     //   {
                     // CitiesOrderedList[i] = _nextOrder[i];
                     //   }
-                    if (processedCities.IndexOf(_nextOrder) == -1)
+               //     var processed = processedCities.Where(city => city.Intersect(_nextOrder).Any());
+                 
+
+               //     if (!processed.Any())
                         //.Contains(_nextOrder))))
-                    {
+                    
                         CitiesOrderedList = _nextOrder;
                         processedCities.Add(CitiesOrderedList);
                         distance = deltaDistance + distance;
-                        string currentCityOrder = FormatCityList(CitiesOrderedList);
 
-                        Console.WriteLine("iteration #: " + iteration );
-                        Console.WriteLine("Order of Cities: " + currentCityOrder);
-                        Console.WriteLine("Distance: " + distance);
-                        //System.Threading.Thread.Sleep(5000);
+                       
+                            UpdateConsole(CitiesOrderedList, iteration, distance);
+
+                       
+                    
                         iteration++;
 
-                    }
+             //       }
 
                 }
 
@@ -152,6 +156,19 @@ namespace TSP
 
             LeastDistance = distance;
         }
+
+        private void UpdateConsole(List<int> citiesOrderedList, int iteration, double distance)
+        {
+            string currentCityOrder = FormatCityList(CitiesOrderedList);
+
+            Console.WriteLine("iteration #: " + iteration +
+                              " Order of Cities: " + currentCityOrder +
+                              " Distance: " + distance);
+
+
+      //   Thread.Sleep(100);
+        
+    }
 
         private string FormatCityList(List<int> citiesOrderedList)
         {

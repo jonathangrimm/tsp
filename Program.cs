@@ -12,6 +12,7 @@ namespace TSP
             boltzmann.FilePath = "Cities.txt";
             boltzmann.RunBoltzmannMachine();
 
+           
 
             string path = "";
 
@@ -27,5 +28,7 @@ namespace TSP
 
             Console.ReadLine();
         }
+
+      
     }
 }
