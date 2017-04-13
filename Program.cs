@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace TSP
 {
@@ -10,7 +12,9 @@ namespace TSP
             boltzmann.FilePath = "Cities.txt";
             boltzmann.RunBoltzmannMachine();
 
+
             string path = "";
+
             for (int i = 0; i < boltzmann.CitiesOrderedList.Count - 1; i++)
             {
                 path += boltzmann.CitiesOrderedList[i] + " -> ";

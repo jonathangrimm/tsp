@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 
 namespace TSP
 {
@@ -16,6 +20,7 @@ namespace TSP
             LeastDistance = 0;
         }
 
+        public string currentIteration { get; set; }
         public double LeastDistance { get; private set; }
 
         public string FilePath { private get; set; }
@@ -97,7 +102,7 @@ namespace TSP
         /// </summary>
         public void RunBoltzmannMachine()
         {
-            var iteration = -1;
+            var iteration = 1;
             var temp = 10000.0;
             double deltaDistance;
             var coolingRate = 0.9999;
@@ -106,30 +111,57 @@ namespace TSP
             GetDistanceData();
 
             var distance = GetTotalDistance(CitiesOrderedList);
+            List<List<int>>processedCities = new List<List<int>>();  
 
             while (temp > absoluteTemp)
             {
                 _nextOrder = GetNextArrangement(CitiesOrderedList);
 
                 deltaDistance = GetTotalDistance(_nextOrder) - distance;
-
                 //if the new order has a smaller distance
                 //or larger distance but meets Boltzmann then accept the arrangement is valid
-                if ((deltaDistance < 0) || (distance > 0 && Math.Exp(-deltaDistance / temp) > _random.NextDouble()))
+                if ((deltaDistance < 0) || (distance > 0 && Math.Exp(-deltaDistance/temp) > _random.NextDouble()))
                 {
-                    for (var i = 0; i < _nextOrder.Count; i++)
-                        CitiesOrderedList[i] = _nextOrder[i];
+                    //  for (var i = 0; i < _nextOrder.Count; i++)
+                    //   {
+                    // CitiesOrderedList[i] = _nextOrder[i];
+                    //   }
+                    if (processedCities.IndexOf(_nextOrder) == -1)
+                        //.Contains(_nextOrder))))
+                    {
+                        CitiesOrderedList = _nextOrder;
+                        processedCities.Add(CitiesOrderedList);
+                        distance = deltaDistance + distance;
+                        string currentCityOrder = FormatCityList(CitiesOrderedList);
 
-                    distance = deltaDistance + distance;
+                        Console.WriteLine("iteration #: " + iteration );
+                        Console.WriteLine("Order of Cities: " + currentCityOrder);
+                        Console.WriteLine("Distance: " + distance);
+                        //System.Threading.Thread.Sleep(5000);
+                        iteration++;
+
+                    }
+
                 }
 
                 //turn down the thermostat
-                temp *= coolingRate;
-
-                iteration++;
+                    temp *= coolingRate;
+//                    iteration++;
+                
             }
 
             LeastDistance = distance;
+        }
+
+        private string FormatCityList(List<int> citiesOrderedList)
+        {
+            string formattedCities = 
+                citiesOrderedList.Where(city => citiesOrderedList.Last() != city)
+                .Aggregate<int, string>(null, (current, city) => current + (city + " -> "));
+
+            formattedCities += citiesOrderedList.Last();
+
+            return formattedCities;
         }
     }
 }
