@@ -7,21 +7,33 @@ namespace TSP
 {
     public class BoltzmannMachine
     {
+        private readonly double _absoluteTemp;
+        private readonly double _coolingRate;
         private readonly Random _random = new Random();
         private double[,] _distances;
         private List<int> _nextOrder = new List<int>();
 
-        public BoltzmannMachine()
+        public BoltzmannMachine(double temp, double coolingRate, double absoluteTemp)
         {
+            Temp = temp;
+            _coolingRate = coolingRate;
+            _absoluteTemp = absoluteTemp;
+            Iteration = 1;
             CitiesOrderedList = new List<int>();
             LeastDistance = 0;
         }
 
+        private double Temp { get; set; }
         public double LeastDistance { get; private set; }
-
         public string FilePath { private get; set; }
+        private List<int> CitiesOrderedList { get; set; }
 
-        public List<int> CitiesOrderedList { get; private set; }
+        public string CitiesInLettersList
+        {
+            get { return FormatCityList(CitiesOrderedList); }
+        }
+
+        public int Iteration { get; set; }
 
         /// <summary>
         ///     Gets the  distance points for each location in the matrix in the text file.
@@ -32,7 +44,6 @@ namespace TSP
             string[] locationDistances;
             using (var reader = new StreamReader(FilePath))
                 locationDistances = reader.ReadToEnd().Split('\n');
-
             _distances = new double[locationDistances.Length, locationDistances.Length];
 
             for (var i = 0; i < locationDistances.Length; i++)
@@ -95,36 +106,32 @@ namespace TSP
         /// </summary>
         public void RunBoltzmannMachine()
         {
-            var iteration = 1;
-            var temp = 10000.0;
-            double deltaDistance;
-            var coolingRate = 0.9999;
-            var absoluteTemp = 0.00001;
+            Iteration = 1;
 
             GetDistanceData();
 
             var distance = GetTotalDistance(CitiesOrderedList);
             var processedCities = new List<List<int>>();
 
-            while (temp > absoluteTemp)
+            while (Temp > _absoluteTemp)
             {
                 _nextOrder = GetNextArrangement(CitiesOrderedList);
-                deltaDistance = GetTotalDistance(_nextOrder) - distance;
+                var deltaDistance = GetTotalDistance(_nextOrder) - distance;
 
                 //if the new order has a smaller distance
                 //or larger distance but meets Boltzmann then accept the arrangement is valid
-                if ((deltaDistance < 0) || (distance > 0 && Math.Exp(-deltaDistance/temp) > _random.NextDouble()))
+                if ((deltaDistance < 0) || (distance > 0 && Math.Exp(-deltaDistance/Temp) > _random.NextDouble()))
                 {
                     CitiesOrderedList = _nextOrder;
                     processedCities.Add(CitiesOrderedList);
                     distance = deltaDistance + distance;
 
-                    UpdateConsole(CitiesOrderedList, iteration, distance);
-                    iteration++;
+                    UpdateConsole(CitiesOrderedList, Iteration, distance);
+                    Iteration++;
                 }
 
                 //turn down the thermostat
-                temp *= coolingRate;
+                Temp *= _coolingRate;
             }
 
             LeastDistance = distance;
@@ -132,6 +139,8 @@ namespace TSP
 
         private void UpdateConsole(List<int> citiesOrderedList, int iteration, double distance)
         {
+            if (citiesOrderedList == null) return;
+
             var currentCityOrder = FormatCityList(CitiesOrderedList);
             Console.WriteLine("iteration #: {0} Order of Cities: {1} Distance: {2}", iteration, currentCityOrder,
                 distance);
@@ -139,12 +148,32 @@ namespace TSP
 
         private static string FormatCityList(List<int> citiesOrderedList)
         {
-            var formattedCities =
-                citiesOrderedList.Where(city => citiesOrderedList.Last() != city)
-                    .Aggregate<int, string>(null, (current, city) => current + (city + " -> "));
-            formattedCities += citiesOrderedList.Last();
+            var citesAsLetters = ConvertCitiesToLetters(citiesOrderedList);
+            var formattedCities = citesAsLetters.Where(city => citesAsLetters.Last() != city)
+                .Aggregate<string, string>(null, (current, city) => current + city + " -> ");
+            formattedCities += citesAsLetters.Last();
 
             return formattedCities;
+        }
+
+        /// <summary>
+        ///     Ghetto programming. Conversion should not be done like this ...
+        /// </summary>
+        /// <param name="citiesOrderedList"></param>
+        /// <returns></returns>
+        private static List<string> ConvertCitiesToLetters(List<int> citiesOrderedList)
+        {
+            var cityLettersList = new List<string>();
+            foreach (var city in citiesOrderedList)
+            {
+                if (city == 0) cityLettersList.Add("A");
+                if (city == 1) cityLettersList.Add("B");
+                if (city == 2) cityLettersList.Add("C");
+                if (city == 3) cityLettersList.Add("D");
+                if (city == 4) cityLettersList.Add("E");
+            }
+
+            return cityLettersList;
         }
     }
 }
