@@ -10,18 +10,21 @@ namespace TSP
     public static class Program
     {
         private const double Temp = 10000.0;
-        private const double CoolingRate = .8; //0.9999;
+        private const double CoolingRate = 0.7;
         private const double AbsoluteTemp = .1; //0.00001;
 
         private static void Main()
         {
+            //this creates an insant of the boltzmann machine that requires the given parameters and the data source 
+            //Cities.txt specified in file path. 
             var boltzmann = new BoltzmannMachine(Temp, CoolingRate, AbsoluteTemp) { FilePath = "Cities.txt" };
             boltzmann.RunBoltzmannMachine();
-            
+           
             var resultsText = GetResultsText(boltzmann);
             var file = SaveOutput(resultsText);
          
             Console.Write(Environment.NewLine + resultsText);
+            Console.Read();
             Process.Start(file.FileName);
         }
 

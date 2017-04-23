@@ -24,8 +24,8 @@ namespace TSP
         }
 
         private double Temp { get; set; }
-        public double LeastDistance { get; private set; }
-        public string FilePath { private get; set; }
+        public double LeastDistance { get;  set; }
+        public string FilePath {  get; set; }
         private List<int> CitiesOrderedList { get; set; }
 
         public string CitiesInLettersList
@@ -157,11 +157,11 @@ namespace TSP
         }
 
         /// <summary>
-        ///     Ghetto programming. Conversion should not be done like this ...
+        ///     Not best practice!!!! But it works here. Conversion should not be done like this ...
         /// </summary>
         /// <param name="citiesOrderedList"></param>
         /// <returns></returns>
-        private static List<string> ConvertCitiesToLetters(List<int> citiesOrderedList)
+        private static List<string> ConvertCitiesToLetters(IEnumerable<int> citiesOrderedList)
         {
             var cityLettersList = new List<string>();
             foreach (var city in citiesOrderedList)
